@@ -1,0 +1,118 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "BuildOptimization",
+            "hidden": true,
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER_LAUNCHER": {
+                    "type": "FILEPATH",
+                    "value": "/usr/bin/ccache"
+                },
+                "CMAKE_CXX_COMPILER_LAUNCHER": {
+                    "type": "FILEPATH",
+                    "value": "/usr/bin/ccache"
+                },
+                "ENABLE_FASTER_BUILD": true
+            }
+        },
+        {
+            "name": "LinkerOptimization",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_EXE_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-fuse-ld=gold -Wl,--threads -Wl,--thread-count,32"
+                },
+                "CMAKE_MODULE_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-fuse-ld=gold -Wl,--threads -Wl,--thread-count,32"
+                },
+                "CMAKE_SHARED_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-fuse-ld=gold -Wl,--threads -Wl,--thread-count,32"
+                }
+            }
+        },
+        {
+            "name": "EnableTests",
+            "hidden": true,
+            "cacheVariables": {
+                "ENABLE_TESTS": true,
+                "ENABLE_FUNCTIONAL_TESTS": true,
+                "ENABLE_BEH_TESTS": true
+            }
+        },
+        {
+            "name": "EnableModelsAndValidationSet",
+            "hidden": true,
+            "cacheVariables": {
+                "ENABLE_MODELS": true,
+                "ENABLE_VALIDATION_SET": true
+            }
+        },
+        {
+            "name": "Disabler",
+            "hidden": true,
+            "description": "Disables all options. It is used as a base for configuration where is only needed option are enabled to speed-up build. Should be used as the first argument to inherits.",
+            "cacheVariables": {
+                "ENABLE_TESTS": false,
+                "ENABLE_FUNCTIONAL_TESTS": false,
+                "ENABLE_BEH_TESTS": false,
+                "ENABLE_MYRIAD_MVNC_TESTS": false,
+                "ENABLE_GAPI_TESTS": false,
+                "ENABLE_OV_CORE_UNIT_TESTS": false,
+                "ENABLE_OV_CORE_BACKEND_UNIT_TESTS": false,
+                "ENABLE_SAMPLES": false,
+                "ENABLE_DATA": false,
+                "ENABLE_OPENCV": false,
+                "ENABLE_MYRIAD_NO_BOOT": false,
+                "ENABLE_INTEL_CPU": false,
+                "ENABLE_CLDNN": false,
+                "ENABLE_INTEL_GPU": false,
+                "ENABLE_ONEDNN_FOR_GPU": false,
+                "ENABLE_INTEL_GNA": false,
+                "ENABLE_V7_SERIALIZE": false,
+                "ENABLE_OPENVINO_DEBUG": false,
+                "ENABLE_DEBUG_CAPS": false,
+                "ENABLE_GPU_DEBUG_CAPS": false,
+                "ENABLE_CPU_DEBUG_CAPS": false,
+                "ENABLE_LTO": false,
+                "ENABLE_FASTER_BUILD": false,
+                "ENABLE_CPPLINT": false,
+                "ENABLE_CLANG_FORMAT": false,
+                "ENABLE_SANITIZER": false,
+                "ENABLE_PROFILING_ITT": false,
+                "ENABLE_PYTHON": false,
+                "ENABLE_WHEEL": false,
+                "TREAT_WARNING_AS_ERROR": false,
+                "ENABLE_OV_PADDLE_FRONTEND": false,
+                "ENABLE_OV_TF_FRONTEND": false,
+                "ENABLE_OV_ONNX_FRONTEND": false,
+                "ENABLE_NCC_STYLE": false,
+                "ENABLE_STRICT_DEPENDENCIES": false,
+                "ENABLE_PROFILING_FIRST_INFERENCE": false,
+                "SELECTIVE_BUILD": false,
+                "ENABLE_ERROR_HIGHLIGHT": false,
+                "ENABLE_DOCS": false,
+                "ENABLE_TBBBIND_2_5": false,
+                "ENABLE_IR_V7_READER": false,
+                "ENABLE_GAPI_PREPROCESSING": false,
+                "ENABLE_MULTI": false,
+                "ENABLE_AUTO": false,
+                "ENABLE_AUTO_BATCH": false,
+                "ENABLE_HETERO": false,
+                "ENABLE_TEMPLATE": false,
+                "ENABLE_INTEL_MYRIAD_COMMON": false,
+                "ENABLE_INTEL_MYRIAD": false,
+                "ENABLE_TBB_RELEASE_ONLY": false,
+                "ENABLE_SYSTEM_PUGIXML": false,
+                "ENABLE_OV_IR_FRONTEND": false,
+                "ENABLE_SYSTEM_PROTOBUF": false,
+                "ENABLE_REQUIREMENTS_INSTALL": false,
+                "ENABLE_OV_TF_LITE_FRONTEND": false
+            }
+        }
+    ]
+}

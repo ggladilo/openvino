@@ -1,0 +1,107 @@
+{
+  "version": 3,
+  "configurePresets": [
+      {
+          "name": "LocalEnvironment",
+          "hidden": true,
+          "binaryDir": "${sourceDir}/build/${presetName}",
+          "cacheVariables": {
+              "CMAKE_INSTALL_PREFIX": {
+                  "type": "FILEPATH",
+                  "value": "${sourceDir}/build/${presetName}/install"
+              }
+          }
+      },
+      {
+          "name": "aarch64",
+          "hidden": true,
+          "cacheVariables": {
+              "CMAKE_TOOLCHAIN_FILE": {
+                  "type": "FILEPATH",
+                  "value": "${sourceParentDir}/applications.ai.vpu-accelerators.vpux-plugin/cmake/oecore.arm64.toolchain.cmake"
+              }
+          }
+      },
+      {
+          "name": "native/Debug",
+          "hidden": false,
+          "inherits": [
+              "EnableTests",
+              "LinkerOptimization",
+              "BuildOptimization",
+              "LocalEnvironment",
+              "Disabler"
+          ],
+          "cacheVariables": {
+              "CMAKE_BUILD_TYPE": {
+                  "type": "STRING",
+                  "value": "Debug"
+              },
+              "ENABLE_OV_IR_FRONTEND": true,
+              "ENABLE_SAMPLES": true,
+              "ENABLE_INTEL_GNA": true
+          }
+      },
+      {
+          "name": "aarch64/Debug",
+          "hidden": false,
+          "inherits": [
+              "EnableTests",
+              "BuildOptimization",
+              "LocalEnvironment",
+              "aarch64",
+              "Disabler"
+          ],
+          "cacheVariables": {
+              "CMAKE_BUILD_TYPE": {
+                  "type": "STRING",
+                  "value": "Debug"
+              },
+              "ENABLE_SAMPLES": true
+          }
+      },
+      {
+          "name": "native/Release",
+          "hidden": false,
+          "inherits": [
+              "EnableTests",
+              "LinkerOptimization",
+              "BuildOptimization",
+              "LocalEnvironment",
+              "Disabler"
+          ],
+          "cacheVariables": {
+              "CMAKE_BUILD_TYPE": {
+                  "type": "STRING",
+                  "value": "Release"
+              },
+              "TREAT_WARNING_AS_ERROR": true,
+              "ENABLE_CLANG_FORMAT": true,
+              "ENABLE_CPPLINT": true,
+              "ENABLE_OV_IR_FRONTEND": true,
+              "ENABLE_SAMPLES": true,
+              "ENABLE_INTEL_GNA": true
+          }
+      },
+      {
+          "name": "aarch64/Release",
+          "hidden": false,
+          "inherits": [
+              "EnableTests",
+              "BuildOptimization",
+              "LocalEnvironment",
+              "aarch64",
+              "Disabler"
+          ],
+          "cacheVariables": {
+              "CMAKE_BUILD_TYPE": {
+                  "type": "STRING",
+                  "value": "Release"
+              },
+              "TREAT_WARNING_AS_ERROR": true,
+              "ENABLE_CLANG_FORMAT": true,
+              "ENABLE_CPPLINT": true
+          }
+      }
+  ]
+}
