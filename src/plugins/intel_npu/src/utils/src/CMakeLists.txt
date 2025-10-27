@@ -3,7 +3,13 @@
 #
 
 add_subdirectory(logger)
+<<<<<<< Updated upstream
 
 if(ENABLE_NPU_PLUGIN_ENGINE)
+||||||| Stash base
+add_subdirectory(zero)
+=======
+if(ENABLE_ZEROAPI_BACKEND)
+>>>>>>> Stashed changes
     add_subdirectory(zero)
 endif()

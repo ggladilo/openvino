@@ -13,7 +13,7 @@ ov_build_target_faster(${TARGET_NAME}
     PCH_HEADER "src/precomp.hpp"
 )
 
-set_target_properties(${TARGET_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE ${ENABLE_LTO})
+set_target_properties(${TARGET_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE ${ENABLE_LTO} TREAT_DEPRECATED_DECLARATIONS_AS_ERRORS ON)
 ov_add_clang_format_target(${TARGET_NAME}_clang FOR_TARGETS ${TARGET_NAME})
 
 target_include_directories(${TARGET_NAME}

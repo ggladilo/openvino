@@ -1,0 +1,484 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "BuildOptimization",
+            "hidden": true,
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER_LAUNCHER": {
+                    "type": "STRING",
+                    "value": "ccache"
+                },
+                "CMAKE_CXX_COMPILER_LAUNCHER": {
+                    "type": "STRING",
+                    "value": "ccache"
+                },
+                "ENABLE_FASTER_BUILD": true
+            }
+        },
+        {
+            "name": "EnableClang",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            }
+        },
+        {
+            "name": "NinjaClangColors",
+            "description": "Enables colors in terminal for Clang builds when using Ninja",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_FLAGS": "-fcolor-diagnostics",
+                "CMAKE_CXX_FLAGS": "-fcolor-diagnostics"
+            }
+        },
+        {
+            "name": "LinkerOptimization",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_EXE_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-B /usr/libexec/mold -Wl,--fork -Wl,--quick-exit -Wl,--thread-count=32"
+                },
+                "CMAKE_MODULE_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-B /usr/libexec/mold -Wl,--fork -Wl,--quick-exit -Wl,--thread-count=32"
+                },
+                "CMAKE_SHARED_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-B /usr/libexec/mold -Wl,--fork -Wl,--quick-exit -Wl,--thread-count=32"
+                }
+            }
+        },
+        {
+            "name": "LinkerLLD",
+            "description": "Changes linker to LLD",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_EXE_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-fuse-ld=lld"
+                },
+                "CMAKE_MODULE_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-fuse-ld=lld"
+                },
+                "CMAKE_SHARED_LINKER_FLAGS": {
+                    "type": "STRING",
+                    "value": "-fuse-ld=lld"
+                }
+            }
+        },
+        {
+            "name": "EnableTests",
+            "hidden": true,
+            "cacheVariables": {
+                "ENABLE_TESTS": true,
+                "ENABLE_PRIVATE_TESTS": true,
+                "ENABLE_FUNCTIONAL_TESTS": true
+            }
+        },
+        {
+            "name": "Disabler",
+            "hidden": true,
+            "description": "Disables options that are not used by default presets",
+            "cacheVariables": {
+                "ENABLE_CPPLINT": false,
+                "ENABLE_LTO": false
+            }
+        },
+
+        {
+            "name": "vpuxDeveloper",
+            "description": "Default configuration preset for VPUX Compiler development. Enables VPUX compiler and generic OV tests, and disables plugin specific builds. Also, enables IMD plugin",
+            "inherits": ["BuildOptimization", "EnableTests", "Disabler"],
+            "binaryDir": "${sourceDir}/build-x86_64/Debug",
+            "displayName": "vpuxDeveloper",
+
+            "cacheVariables": {
+                "OpenVINODeveloperPackage_DIR": {
+                    "type": "FILEPATH",
+                    "value": "$env{OPENVINO_HOME}/build-x86_64/Debug"
+                },
+
+                "CMAKE_BUILD_TYPE": {
+                    "type": "STRING",
+                    "value": "Debug"
+                },
+
+                "CMAKE_EXPORT_COMPILE_COMMANDS" : true,
+
+                "ENABLE_DEVELOPER_BUILD": true,
+                "ENABLE_IMD_PLUGIN": true,
+
+                "ENABLE_VPUX_DOCS": false,
+                "ENABLE_NPU_MICRO_BENCHMARKS": true
+            }
+        },
+        {
+            "name": "vpuxRelWithDebInfoDeveloper",
+            "description": "Release with debug info configuration preset for VPUX Compiler development. Enables VPUX compiler and generic OV tests, and disables plugin specific builds. Also, enables IMD plugin",
+            "inherits": ["BuildOptimization", "EnableTests", "Disabler"],
+            "binaryDir": "${sourceDir}/build-x86_64/RelWithDebInfo",
+            "displayName": "vpuxRelWithDebInfoDeveloper",
+
+            "cacheVariables": {
+                "OpenVINODeveloperPackage_DIR": {
+                    "type": "FILEPATH",
+                    "value": "$env{OPENVINO_HOME}/build-x86_64/RelWithDebInfo"
+                },
+
+                "CMAKE_BUILD_TYPE": {
+                    "type": "STRING",
+                    "value": "RelWithDebInfo"
+                },
+
+                "CMAKE_EXPORT_COMPILE_COMMANDS" : true,
+
+                "ENABLE_DEVELOPER_BUILD": true,
+                "ENABLE_IMD_PLUGIN": true,
+
+                "ENABLE_VPUX_DOCS": false,
+                "ENABLE_NPU_MICRO_BENCHMARKS": true
+            }
+        },
+        {
+            "name": "vpuxRelease",
+            "description": "Default configuration for NPU Compiler release",
+            "inherits": ["vpuxDeveloper"],
+            "binaryDir": "${sourceDir}/build-x86_64/Release",
+            "displayName": "vpuxRelease",
+
+            "cacheVariables": {
+                "OpenVINODeveloperPackage_DIR": {
+                    "type": "FILEPATH",
+                    "value": "$env{OPENVINO_HOME}/build-x86_64/Release"
+                },
+                "CMAKE_BUILD_TYPE": {
+                    "type": "STRING",
+                    "value": "Release"
+                },
+
+                "ENABLE_DEVELOPER_BUILD": false,
+                "ENABLE_VPUX_DOCS": true
+            }
+        },
+
+        {
+            "name": "OpenVINOWithVPUX",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS" : true,
+
+                "ENABLE_HETERO": true,
+                "ENABLE_INTEL_CPU": true,
+                "ENABLE_INTEL_GPU": false,
+                "ENABLE_TEMPLATE": true,
+
+                "ENABLE_OV_ONNX_FRONTEND": false,
+                "ENABLE_OV_PADDLE_FRONTEND": false,
+                "ENABLE_OV_PYTORCH_FRONTEND": false,
+                "ENABLE_OV_TF_FRONTEND": false,
+                "ENABLE_OV_TF_LITE_FRONTEND": false,
+
+                "THREADING": {
+                    "type": "STRING",
+                    "value": "TBB"
+                },
+                "ENABLE_LTO": false,
+                "ENABLE_OPENCV": true,
+
+                "ENABLE_TESTS": true,
+                "ENABLE_PRIVATE_TESTS": true,
+                "ENABLE_FUNCTIONAL_TESTS": true,
+
+                "OPENVINO_EXTRA_MODULES": {
+                    "type": "FILEPATH",
+                    "value": "./modules/vpux"
+                }
+            }
+        },
+
+        {
+            "name": "ovVpuxDeveloper",
+            "description": "Same as vpuxDeveloper, but it builds VPUX plugin in OpenVINO project tree. Please make sure that VPUX plugin is located inside OpenVINO repo in modules/vpux folder.",
+            "binaryDir": "${sourceDir}/build-x86_64/Debug",
+            "displayName": "ovVpuxDeveloper",
+            "inherits": ["OpenVINOWithVPUX", "vpuxDeveloper"]
+        },
+        {
+            "name": "ovVpuxRelease",
+            "description": "Same as vpuxRelease, but it builds VPUX plugin in OpenVINO project tree. Please make sure that VPUX plugin is located inside OpenVINO repo in modules/vpux folder.",
+            "binaryDir": "${sourceDir}/build-x86_64/Release",
+            "displayName": "ovVpuxRelease",
+            "inherits": ["OpenVINOWithVPUX", "vpuxRelease"]
+        },
+
+        {
+            "name": "cid",
+            "hidden": true,
+            "description": "Default configuration for NPU driver compiler. Make sure NPU_PLUGIN_HOME environment variable is set to the VPUX plugin root directory.",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": false,
+                "ENABLE_OV_IR_FRONTEND": true,
+                "THREADING": {
+                    "type": "STRING",
+                    "value": "TBB"
+                },
+                "ENABLE_TBBBIND_2_5": false,
+                "BUILD_COMPILER_FOR_DRIVER": true,
+
+                "OPENVINO_EXTRA_MODULES": {
+                    "type": "FILEPATH",
+                    "value": "$env{NPU_PLUGIN_HOME}"
+                }
+           }
+        },
+        {
+            "name": "npuCidLinux",
+            "description": "Default CMake configuration to build NPU-CiD targets on Linux. Note: (1) Make sure NPU_PLUGIN_HOME and CONFIG environment variables are set. (2) CiD is a static build that includes only the necessary targets. Irrelevant targets/components are excluded to minimize the size of the build output.",
+            "binaryDir": "${sourceDir}/build_$env{CONFIG}",
+            "displayName": "npuCid",
+            "inherits": ["cid", "BuildOptimization", "Disabler"],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": {
+                    "type": "STRING",
+                    "value": "$env{CONFIG}"
+                },
+
+                "ENABLE_LTO": false,
+                "ENABLE_FASTER_BUILD": false,
+                "ENABLE_CPPLINT": false,
+
+                "ENABLE_TESTS": false,
+                "ENABLE_FUNCTIONAL_TESTS": false,
+                "ENABLE_SAMPLES": false,
+
+                "ENABLE_JS": false,
+
+                "ENABLE_PYTHON": false,
+                "ENABLE_PYTHON_PACKAGING": false,
+                "ENABLE_WHEEL": false,
+
+                "ENABLE_OV_ONNX_FRONTEND": false,
+                "ENABLE_OV_PADDLE_FRONTEND": false,
+                "ENABLE_OV_PYTORCH_FRONTEND": false,
+                "ENABLE_OV_TF_FRONTEND": false,
+                "ENABLE_OV_TF_LITE_FRONTEND": false,
+                "ENABLE_OV_JAX_FRONTEND": false,
+
+                "ENABLE_SYSTEM_TBB": false,
+                "ENABLE_TBB_RELEASE_ONLY": false,
+                "ENABLE_OPENCV": false,
+
+                "ENABLE_MULTI": false,
+                "ENABLE_HETERO": false,
+                "ENABLE_AUTO": false,
+                "ENABLE_AUTO_BATCH": false,
+                "ENABLE_TEMPLATE": false,
+                "ENABLE_PROXY": false,
+                "ENABLE_INTEL_CPU": false,
+                "ENABLE_INTEL_GPU": false,
+
+                "ENABLE_NPU_PLUGIN_ENGINE": false,
+                "ENABLE_ZEROAPI_BACKEND": false,
+                "ENABLE_DRIVER_COMPILER_ADAPTER": false,
+                "ENABLE_INTEL_NPU_INTERNAL": false,
+                "ENABLE_INTEL_NPU_PROTOPIPE": false,
+
+                "ENABLE_PRIVATE_TESTS": false,
+                "ENABLE_DIRECTML": false,
+                "ENABLE_NPU_LSP_SERVER": false
+            }
+        },
+        {
+            "name": "npuCidWindows",
+            "description": "Default CMake configuration to build NPU-CiD targets on Windows. Note: (1) Make sure NPU_PLUGIN_HOME and CONFIG environment variables are set. (2) CiD is a static build that includes only the necessary targets. Irrelevant targets/components are excluded to minimize the size of the build output.",
+            "binaryDir": "${sourceDir}/build_$env{CONFIG}",
+            "displayName": "npuCid",
+            "inherits": ["cid", "BuildOptimization", "Disabler"],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": {
+                    "type": "STRING",
+                    "value": "$env{CONFIG}"
+                },
+                "CMAKE_TOOLCHAIN_FILE":"${sourceDir}\\cmake\\toolchains\\onecoreuap.toolchain.cmake",
+                "ENABLE_LTO": false,
+                "ENABLE_FASTER_BUILD": false,
+                "ENABLE_CPPLINT": false,
+
+                "ENABLE_TESTS": false,
+                "ENABLE_FUNCTIONAL_TESTS": false,
+                "ENABLE_SAMPLES": false,
+
+                "ENABLE_JS": false,
+
+                "ENABLE_PYTHON": false,
+                "ENABLE_PYTHON_PACKAGING": false,
+                "ENABLE_WHEEL": false,
+
+                "ENABLE_OV_ONNX_FRONTEND": false,
+                "ENABLE_OV_PADDLE_FRONTEND": false,
+                "ENABLE_OV_PYTORCH_FRONTEND": false,
+                "ENABLE_OV_TF_FRONTEND": false,
+                "ENABLE_OV_TF_LITE_FRONTEND": false,
+                "ENABLE_OV_JAX_FRONTEND": false,
+
+                "ENABLE_SYSTEM_TBB": false,
+                "ENABLE_TBB_RELEASE_ONLY": false,
+                "ENABLE_OPENCV": false,
+
+                "ENABLE_MULTI": false,
+                "ENABLE_HETERO": false,
+                "ENABLE_AUTO": false,
+                "ENABLE_AUTO_BATCH": false,
+                "ENABLE_TEMPLATE": false,
+                "ENABLE_PROXY": false,
+                "ENABLE_INTEL_CPU": false,
+                "ENABLE_INTEL_GPU": false,
+
+                "ENABLE_NPU_PLUGIN_ENGINE": false,
+                "ENABLE_ZEROAPI_BACKEND": false,
+                "ENABLE_DRIVER_COMPILER_ADAPTER": false,
+                "ENABLE_INTEL_NPU_INTERNAL": false,
+                "ENABLE_INTEL_NPU_PROTOPIPE": false,
+
+                "ENABLE_PRIVATE_TESTS": false,
+                "ENABLE_DIRECTML": false,
+                "ENABLE_NPU_LSP_SERVER": false
+            }
+        },
+        {
+            "name": "npuFuzzingBuild",
+            "displayName": "npuFuzzingBuild",
+            "inherits": ["vpuxDeveloper", "EnableClang", "NinjaClangColors", "LinkerLLD"],
+            "cacheVariables": {
+                "ENABLE_SANITIZER": true,
+                "ENABLE_FUZZING": true,
+                "ENABLE_NPU_FUZZ_TESTS": true
+            }
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "UnitTests",
+            "configurePreset": "vpuxDeveloper",
+            "filter": {
+                "include": {
+                    "name": "(npuUnitTests|LIT-NPU-ALL$)"
+                }
+            },
+            "output": {
+                "verbosity": "verbose"
+            }
+        },
+        {
+            "name": "NPU4000",
+            "hidden": true,
+            "environment": {
+                "IE_KMB_TESTS_PLATFORM": "4000",
+                "IE_KMB_TESTS_DEVICE_NAME": "NPU.4000",
+                "SINGLE_IMAGE_TEST_CONFIG": "public_models_4000.json",
+                "SINGLE_IMAGE_TEST_TOOLS": "compile_tool;NetTest-CalcRef;NetTest-Validate",
+                "VPUX_PLUGIN_HOME": "${sourceDir}"
+            }
+        },
+        {
+            "name": "NPU3720",
+            "hidden": true,
+            "environment": {
+                "IE_KMB_TESTS_PLATFORM": "3720",
+                "IE_KMB_TESTS_DEVICE_NAME": "NPU.3720",
+                "SINGLE_IMAGE_TEST_CONFIG": "public_models_3720.json",
+                "SINGLE_IMAGE_TEST_TOOLS": "compile_tool;NetTest-CalcRef;NetTest-Validate",
+                "VPUX_PLUGIN_HOME": "${sourceDir}"
+            }
+        },
+        {
+            "name": "Simulator",
+            "hidden": true,
+            "environment": {
+                "ENABLE_IMD_PLUGIN": "1",
+                "IE_NPU_IMD_LAUNCH_MODE": "VPUX_IMD_SIMULATOR"
+            }
+        },
+        {
+            "name": "Silicon",
+            "hidden": true,
+            "environment": {
+                "ENABLE_IMD_PLUGIN": "1",
+                "IE_NPU_IMD_LAUNCH_MODE": "VPUX_IMD_MOVI_DEBUG"
+            }
+        },
+        {
+            "name": "NPU3720/Simulator",
+            "hidden": true,
+            "inherits": [
+                "NPU3720",
+                "Simulator"
+            ],
+            "configurePreset": "vpuxDeveloper",
+            "output": {
+                "verbosity": "verbose"
+            },
+            "filter": {
+                "include": {
+                    "name": "^(npuFuncTests-parallel|SingleImageTests)$"
+                }
+            }
+        },
+        {
+            "name": "NPU3720/Silicon",
+            "hidden": true,
+            "inherits": [
+                "NPU3720",
+                "Silicon"
+            ],
+            "configurePreset": "vpuxDeveloper",
+            "output": {
+                "verbosity": "verbose"
+            },
+            "filter": {
+                "include": {
+                    "name": "^(npuFuncTests|SingleImageTests)$"
+                }
+            }
+        },
+        {
+            "name": "NPU4000/Simulator",
+            "hidden": true,
+            "inherits": [
+                "NPU4000",
+                "Simulator"
+            ],
+            "configurePreset": "vpuxDeveloper",
+            "output": {
+                "verbosity": "verbose"
+            },
+            "filter": {
+                "include": {
+                    "name": "^(npuFuncTests-parallel|SingleImageTests)$"
+                }
+            }
+        },
+        {
+            "name": "NPU4000/Silicon",
+            "hidden": true,
+            "inherits": [
+                "NPU4000",
+                "Silicon"
+            ],
+            "configurePreset": "vpuxDeveloper",
+            "output": {
+                "verbosity": "verbose"
+            },
+            "filter": {
+                "include": {
+                    "name": "^(npuFuncTests|SingleImageTests)$"
+                }
+            }
+        }
+    ]
+}

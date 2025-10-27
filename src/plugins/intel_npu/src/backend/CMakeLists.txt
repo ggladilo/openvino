@@ -9,7 +9,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 
 add_library(${TARGET_NAME} STATIC ${SOURCES})
 
-set_target_properties(${TARGET_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE ${ENABLE_LTO})
+set_target_properties(${TARGET_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE ${ENABLE_LTO} TREAT_DEPRECATED_DECLARATIONS_AS_ERRORS ON)
 ov_add_clang_format_target(${TARGET_NAME}_clang FOR_TARGETS ${TARGET_NAME})
 
 target_compile_definitions(${TARGET_NAME}
@@ -24,7 +24,16 @@ target_include_directories(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
     PRIVATE
         openvino::npu_al
+<<<<<<< Updated upstream
         openvino::npu_common
+||||||| Stash base
+        openvino_npu_zero_result_parser
+        ze_loader
+=======
+        openvino_npu_zero_result_parser
+        ze_loader
+        openvino::runtime::dev
+>>>>>>> Stashed changes
 )
 
 #

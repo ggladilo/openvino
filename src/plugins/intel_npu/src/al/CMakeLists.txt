@@ -9,7 +9,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 
 add_library(${TARGET_NAME} STATIC ${SOURCES})
 add_library(openvino::npu_al ALIAS ${TARGET_NAME})
-set_target_properties(${TARGET_NAME} PROPERTIES EXPORT_NAME npu_al)
+set_target_properties(${TARGET_NAME} PROPERTIES EXPORT_NAME npu_al TREAT_DEPRECATED_DECLARATIONS_AS_ERRORS ON)
 
 target_include_directories(${TARGET_NAME}
     PUBLIC
@@ -23,6 +23,7 @@ endif()
 target_link_libraries(${TARGET_NAME}
     PUBLIC
         openvino::npu_logger_utils
+    PRIVATE
         openvino::runtime::dev
 )
 
