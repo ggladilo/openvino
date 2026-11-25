@@ -976,6 +976,35 @@ result_t ExecutionContext::prepareSubmission(ze_command_list_handle_t commandLis
         }
     } else {
         cmdListCountToBeSubmitted = 1;
+
+        // The first launch of a list waits for the signal events of the previous submission and resets them, unless
+        // they are counter-based (executeGraph). A list without launches, such as the one of a loop that ran zero
+        // times, would wait for nothing, while the NPU may run the jobs of a queue concurrently: its barrier would not
+        // order it after its predecessor, and the events would stay signaled into the next run. It waits for them and
+        // resets them here.
+        const auto cmdListIndex = getCurrentCmdListIndex();
+        auto& inferenceCmdIds = getInferenceCmdIds();
+        if (cmdListIndex < inferenceCmdIds.size() && inferenceCmdIds.at(cmdListIndex) == DEFAULT_INFERENCE_ID) {
+            auto& waitEvents = _eventPool.getWaitEvents();
+            if (!waitEvents.empty()) {
+                result = pfnCommandListAppendBarrier(commandListHandle, nullptr,
+                                                     static_cast<uint32_t>(waitEvents.size()), waitEvents.data());
+                if (result != ZE_RESULT_SUCCESS) {
+                    return failure(result, "Failed to append barrier to command list");
+                }
+                if (_eventPool.getEventType() == EventPool::EventType::DEFAULT) {
+                    auto pfnCommandListAppendEventReset = _levelZeroDdiTable->zeCommandListAppendEventReset;
+                    for (auto waitEvent : waitEvents) {
+                        result = pfnCommandListAppendEventReset(commandListHandle, waitEvent);
+                        if (result != ZE_RESULT_SUCCESS) {
+                            return failure(result, "Failed to append an event reset in command list: {}",
+                                           commandListHandle);
+                        }
+                    }
+                }
+            }
+        }
+
         if (!needHostSync) {
             // Need to add signal event to the command list to ensure that the host sync event is signaled
             // after all commands complete execution
