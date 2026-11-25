@@ -253,6 +253,7 @@ result_t submitCmdListPool(ExecutionContext& executionContext, ze_command_list_h
         }
         NPU_VM_LOG_TRACE("Submitted command list: {}", cmdList);
     }
+    executionContext.setLastExecHostSync(commandQueue != nullptr && event != nullptr);
     return success();
 }
 
@@ -288,6 +289,7 @@ result_t submitCmdListImmediate(ExecutionContext& executionContext, ze_command_l
 
         NPU_VM_LOG_TRACE("Submitted command list: {}", cmdList);
     }
+    executionContext.setLastExecHostSync(event != nullptr);
 
     return success();
 }
@@ -514,6 +516,9 @@ bool ExecutionContext::EventPool::destroy() {
         }
     
         _events.clear();
+        // the signal events of the submissions are among the destroyed ones
+        _signalEvents.clear();
+        _signalEventsArrayIndex = 1;
 
         if (_eventPool != nullptr) {
             auto result = pfnEventPoolDestroy(_eventPool);
@@ -1036,6 +1041,23 @@ result_t ExecutionContext::prepareSubmission(ze_command_list_handle_t commandLis
 result_t ExecutionContext::hostSync() {
     // No need to synchronize host with fence or event if the execution parameters V1 are set
     if (_executeParamsV2) {
+        if (_lastExec == LastExec::WITHOUT_HOST_SYNC) {
+            // Only a cmd_list.exec with the host-sync flag attaches the fence or the event to its submission, and the
+            // bytecode backend sets the flag on the last exec in program order. When that one is on a branch that did
+            // not run, the last submission carries neither. It sets signal events instead (prepareSubmission): the
+            // ones that a next submission would wait for, as the VM orders each submission after its predecessor.
+            const auto& signalEvents = _eventPool.getLastSignalEvents();
+            NPU_VM_LOG_TRACE("The last submission carries no host sync object: waiting for its {} signal events",
+                             signalEvents.size());
+            auto pfnEventHostSynchronize = _levelZeroDdiTable->zeEventHostSynchronize;
+            for (auto signalEvent : signalEvents) {
+                auto result = pfnEventHostSynchronize(signalEvent, UINT64_MAX);
+                if (result != ZE_RESULT_SUCCESS) {
+                    return failure(result, "Failed to synchronize host with the last submission's signal event");
+                }
+            }
+            return ZE_RESULT_SUCCESS;
+        }
         if (_hostSyncFence != nullptr) {
             auto pfnFenceHostSynchronize = _levelZeroDdiTable->zeFenceHostSynchronize;
             auto result = pfnFenceHostSynchronize(_hostSyncFence, UINT64_MAX);
@@ -1353,6 +1375,7 @@ result_t submitCmdList(ExecutionContext& executionContext, ze_command_list_handl
                                "Failed to add command lists handles to a recorded command list");
             }
         }
+        executionContext.setLastExecHostSync(fence != nullptr || event != nullptr);
     }
 
     NPU_VM_LOG_TRACE("Submitted command list: {}", commandListHandle);

@@ -157,6 +157,18 @@ public:
         // used.
         std::vector<ze_event_handle_t>& getWaitEvents();
 
+        // Returns the signal events of the latest submission that set any: the ones that a next submission would wait
+        // for, as the VM orders each submission after its predecessor with them.
+        const std::vector<ze_event_handle_t>& getLastSignalEvents() const {
+            static const std::vector<ze_event_handle_t> none;
+            for (auto index = std::min<size_t>(_signalEventsArrayIndex, _signalEvents.size()); index > 0; --index) {
+                if (!_signalEvents.at(index - 1).empty()) {
+                    return _signalEvents.at(index - 1);
+                }
+            }
+            return none;
+        }
+
         result_t resetEvents() {
             _curEventIndex = (_hostSyncWithEventRequired) ? 1 : 0;
             _signalEventsArrayIndex = 1;
@@ -219,6 +231,19 @@ public:
                 for (uint32_t i = 0; i < resetEventCount; ++i) {
                     auto& event = _events.at(i);
                     if (event != nullptr) {
+                        auto result = pfnEventHostReset(event);
+                        if (result != ZE_RESULT_SUCCESS) {
+                            return result;
+                        }
+                    }
+                }
+
+                // In TILE_BOUND mode each submission resets on the device the events that it waits for, so only those
+                // of the last submission of a run can stay signaled: when it does not carry the host-sync object, it
+                // sets them, and nothing waits for them (hostSync). Reset them before a run or a replay hands them out
+                // again.
+                if (_eventResetRequired && _executionMode == ExecutionMode::TILE_BOUND) {
+                    for (auto event : getLastSignalEvents()) {
                         auto result = pfnEventHostReset(event);
                         if (result != ZE_RESULT_SUCCESS) {
                             return result;
@@ -398,6 +423,11 @@ protected:
     // Stores event for host sync
     ze_event_handle_t _hostSyncEvent{nullptr};
 
+    // What the last cmd_list.exec of the current run, or the last replay, submitted: hostSync waits on the host-sync
+    // fence or event only when that submission carries it.
+    enum class LastExec : uint32_t { NONE, WITH_HOST_SYNC, WITHOUT_HOST_SYNC };
+    LastExec _lastExec = LastExec::NONE;
+
     npu_vm_runtime_execute_params_t* _executeParamsV1{nullptr};
     npu_vm_runtime_execute_params2_t* _executeParamsV2{nullptr};
 
@@ -454,8 +484,15 @@ public:
         _allCmdListsUsedInGroup = false;
 
         _cmdListPool.reset();
+        _lastExec = LastExec::NONE;
 
         return resetEvents();
+    }
+
+    // Records whether the last cmd_list.exec of the current run attached the host-sync fence or event to its
+    // submission.
+    void setLastExecHostSync(bool attached) {
+        _lastExec = attached ? LastExec::WITH_HOST_SYNC : LastExec::WITHOUT_HOST_SYNC;
     }
 
     // Returns the next command list handle from the array of command lists in the execution parameters,
@@ -752,6 +789,8 @@ public:
             if (result != ZE_RESULT_SUCCESS) {
                 return result;
             }
+            // one submission of all the recorded lists, which carries the fence
+            setLastExecHostSync(_hostSyncFence != nullptr);
         }
         return ZE_RESULT_SUCCESS;
     }
